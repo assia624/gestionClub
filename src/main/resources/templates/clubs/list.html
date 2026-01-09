@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Clubs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 1000;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 24px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #334155;
+            color: white;
+        }
+        .main-content {
+            margin-left: 80px;
+            padding: 30px 40px;
+        }
+        .header {
+            background: white;
+            padding: 25px 40px;
+            margin: -30px -40px 30px -40px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        .header-left p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .search-box {
+            position: relative;
+            width: 350px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+        }
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .club-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .club-header {
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .club-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .avatar-sport { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .avatar-culture { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .avatar-science { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .avatar-art { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .club-info {
+            flex: 1;
+        }
+        .club-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+        .club-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .club-body {
+            padding: 25px;
+        }
+        .club-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .club-detail-icon {
+            width: 32px;
+            height: 32px;
+            background: #f9fafb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .club-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+        .club-footer {
+            padding: 20px 25px;
+            background: #f9fafb;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 8px;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-warning {
+            background: #fbbf24;
+            color: white;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-info {
+            background: #667eea;
+            color: white;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+        }
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+        .empty-state p {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">🎓</div>
+    <a href="/clubs" class="nav-item active" title="Clubs">🏛️</a>
+    <a href="/membres" class="nav-item" title="Membres">👥</a>
+    <a href="/evenements" class="nav-item" title="Événements">📅</a>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <div class="header-left">
+            <h1>Clubs</h1>
+            <p th:text="${clubs.size()} + ' clubs enregistrés'">0 clubs enregistrés</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">A</div>
+                <span sec:authentication="name">Admin</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-secondary">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${message}" class="alert" th:text="${message}"></div>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Rechercher un club...">
+        </div>
+        <a th:href="@{/clubs/new}" class="btn btn-primary">
+            ➕ Nouveau Club
+        </a>
+    </div>
+
+    <div th:if="${clubs.isEmpty()}" class="empty-state">
+        <div class="empty-icon">🏛️</div>
+        <h3>Aucun club trouvé</h3>
+        <p>Commencez par créer votre premier club!</p>
+        <a th:href="@{/clubs/new}" class="btn btn-primary">➕ Créer un club</a>
+    </div>
+
+    <div th:if="${!clubs.isEmpty()}" class="clubs-grid">
+        <div class="club-card" th:each="club : ${clubs}">
+            <div class="club-header">
+                <div class="club-avatar avatar-sport" th:if="${club.categorie == 'Sport'}">⚽</div>
+                <div class="club-avatar avatar-culture" th:if="${club.categorie == 'Culture'}">🎭</div>
+                <div class="club-avatar avatar-science" th:if="${club.categorie == 'Science'}">🔬</div>
+                <div class="club-avatar avatar-art" th:if="${club.categorie == 'Art'}">🎨</div>
+                <div class="club-avatar avatar-art"
+                     th:if="${club.categorie != 'Sport'
+          and club.categorie != 'Culture'
+          and club.categorie != 'Science'
+          and club.categorie != 'Art'}">
+                    🏛️
+                </div>
+                <div class="club-info">
+                    <div class="club-name" th:text="${club.nom}">Nom du club</div>
+                    <span class="club-category" th:text="${club.categorie}">Catégorie</span>
+                </div>
+            </div>
+
+            <div class="club-body">
+                <div class="club-detail">
+                    <div class="club-detail-icon">👨‍💼</div>
+                    <span th:text="${club.president}">Président</span>
+                </div>
+                <div class="club-detail">
+                    <div class="club-detail-icon">📅</div>
+                    <span th:text="${#temporals.format(club.dateCreation, 'dd/MM/yyyy')}">Date</span>
+                </div>
+                <div class="club-detail">
+                    <div class="club-detail-icon">👥</div>
+                    <span th:text="${club.nombreMembres ?: 0} + ' membres'">0 membres</span>
+                </div>
+                <p class="club-description" th:text="${club.description}">Description du club</p>
+            </div>
+
+            <div class="club-footer">
+                <a th:href="@{/clubs/edit/{id}(id=${club.id})}" class="btn btn-sm btn-warning">✏️ Modifier</a>
+                <a th:href="@{/clubs/delete/{id}(id=${club.id})}"
+                   class="btn btn-sm btn-danger"
+                   onclick="return confirm('Supprimer ce club?')">🗑️ Supprimer</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

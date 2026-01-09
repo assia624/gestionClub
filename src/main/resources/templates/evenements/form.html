@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Événement</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 40px;
+        }
+
+        .nav-item {
+            width: 48px;
+            height: 48px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 22px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #334155;
+            color: #fff;
+        }
+
+        /* MAIN */
+        .main-content {
+            margin-left: 80px;
+            padding: 30px 40px;
+        }
+
+        /* HEADER */
+        .header {
+            background: #fff;
+            padding: 25px 40px;
+            margin: -30px -40px 30px -40px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f9fafb;
+            padding: 8px 14px;
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* FORM */
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        input, textarea, select {
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 10px 25px rgba(102,126,234,0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">🎓</div>
+    <a href="/clubs" class="nav-item">🏛️</a>
+    <a href="/membres" class="nav-item">👥</a>
+    <a href="/evenements" class="nav-item active">📅</a>
+</div>
+
+<div class="main-content">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h1 th:if="${evenement.id == null}">Nouvel Événement</h1>
+            <h1 th:if="${evenement.id != null}">Modifier Événement</h1>
+
+            <div class="breadcrumb">
+                <a href="/evenements">Événements</a> /
+                <span th:if="${evenement.id == null}">Nouveau</span>
+                <span th:if="${evenement.id != null}">Modifier</span>
+            </div>
+        </div>
+
+        <div class="user-info">
+            <div class="user-avatar"
+                 th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">A</div>
+            <span sec:authentication="name"></span>
+
+            <form th:action="@{/logout}" method="post">
+                <button class="btn btn-secondary" type="submit">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-container">
+        <form th:action="@{/evenements/save}" th:object="${evenement}" method="post">
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Titre</label>
+                    <input type="text" th:field="*{titre}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Club</label>
+                    <select th:field="*{clubId}" required>
+                        <option value="">-- Choisir un club --</option>
+                        <option th:each="club : ${clubs}"
+                                th:value="${club.id}"
+                                th:text="${club.nom}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label>Description</label>
+                    <textarea th:field="*{description}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date & Heure</label>
+                    <input type="datetime-local" th:field="*{dateDebut}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Lieu</label>
+                    <input type="text" th:field="*{lieu}">
+                </div>
+
+                <div class="form-group">
+                    <label>Capacité</label>
+                    <input type="number" th:field="*{capacite}">
+                </div>
+
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                <a href="/evenements" class="btn btn-secondary">↩ Annuler</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

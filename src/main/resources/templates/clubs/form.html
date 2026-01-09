@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 1000;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 24px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #334155;
+            color: white;
+        }
+        .main-content {
+            margin-left: 80px;
+            padding: 30px 40px;
+        }
+        .header {
+            background: white;
+            padding: 25px 40px;
+            margin: -30px -40px 30px -40px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        .breadcrumb {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .form-grid {
+            display: grid;
+            gap: 25px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        input, textarea, select {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .form-actions {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">🎓</div>
+    <a href="/clubs" class="nav-item active">🏛️</a>
+    <a href="/membres" class="nav-item">👥</a>
+    <a href="/evenements" class="nav-item">📅</a>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <div class="header-left">
+            <h1 th:text="${club.id == null ? 'Nouveau Club' : 'Modifier Club'}">Nouveau Club</h1>
+            <div class="breadcrumb">
+                <a href="/clubs">Clubs</a> / <span th:text="${club.id == null ? 'Nouveau' : 'Modifier'}">Nouveau</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">A</div>
+                <span sec:authentication="name">Admin</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-secondary">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form th:action="@{/clubs/save}" th:object="${club}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nom">🏛️ Nom du club *</label>
+                    <input type="text" id="nom" th:field="*{nom}" required placeholder="Ex: Club de Football">
+                    <div class="error" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="categorie">📂 Catégorie *</label>
+                    <select id="categorie" th:field="*{categorie}" required>
+                        <option value="">Sélectionnez une catégorie</option>
+                        <option value="Sport">⚽ Sport</option>
+                        <option value="Culture">🎭 Culture</option>
+                        <option value="Science">🔬 Science</option>
+                        <option value="Art">🎨 Art</option>
+                    </select>
+                    <div class="error" th:if="${#fields.hasErrors('categorie')}" th:errors="*{categorie}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="president">👨‍💼 Président *</label>
+                    <input type="text" id="president" th:field="*{president}" required placeholder="Ex: Ahmed Bennani">
+                    <div class="error" th:if="${#fields.hasErrors('president')}" th:errors="*{president}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateCreation">📅 Date de création *</label>
+                    <input type="date" id="dateCreation" th:field="*{dateCreation}" required>
+                    <div class="error" th:if="${#fields.hasErrors('dateCreation')}" th:errors="*{dateCreation}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombreMembres">👥 Nombre de membres</label>
+                    <input type="number" id="nombreMembres" th:field="*{nombreMembres}" min="0" placeholder="Ex: 25">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">📝 Description</label>
+                    <textarea id="description" th:field="*{description}" placeholder="Décrivez le club..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                <a th:href="@{/clubs}" class="btn btn-secondary">❌ Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

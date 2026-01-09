@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Membres</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 1000;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 24px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #334155;
+            color: white;
+        }
+        .main-content {
+            margin-left: 80px;
+            padding: 30px 40px;
+        }
+        .header {
+            background: white;
+            padding: 25px 40px;
+            margin: -30px -40px 30px -40px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        .header-left p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .alert {
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .search-box {
+            position: relative;
+            width: 350px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .membres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .membre-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .membre-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .membre-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .membre-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+        .membre-email {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .membre-badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-niveau {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-club {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+        .membre-info {
+            margin: 16px 0;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            text-align: left;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .info-label {
+            color: #6b7280;
+        }
+        .info-value {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .membre-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 8px;
+            flex: 1;
+        }
+        .btn-warning {
+            background: #fbbf24;
+            color: white;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">🎓</div>
+    <a href="/clubs" class="nav-item" title="Clubs">🏛️</a>
+    <a href="/membres" class="nav-item active" title="Membres">👥</a>
+    <a href="/evenements" class="nav-item" title="Événements">📅</a>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <div class="header-left">
+            <h1>Membres</h1>
+            <p th:text="${membres.size()} + ' membres enregistrés'">0 membres</p>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">A</div>
+                <span sec:authentication="name">Admin</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-secondary">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${message}" class="alert" th:text="${message}"></div>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Rechercher un membre...">
+        </div>
+        <a th:href="@{/membres/new}" class="btn btn-primary">
+            ➕ Nouveau Membre
+        </a>
+    </div>
+
+    <div th:if="${!membres.isEmpty()}" class="membres-grid">
+        <div class="membre-card" th:each="membre : ${membres}">
+            <div class="membre-avatar" th:text="${#strings.substring(membre.prenom, 0, 1) + #strings.substring(membre.nom, 0, 1)}">AB</div>
+            <div class="membre-name" th:text="${membre.prenom + ' ' + membre.nom}">Nom Prénom</div>
+            <div class="membre-email" th:text="${membre.email}">email@exemple.com</div>
+
+            <div class="membre-badges">
+                <span class="badge badge-niveau" th:text="${membre.niveau}">L2</span>
+                <span class="badge badge-club" th:text="${membre.clubNom}">Club</span>
+            </div>
+
+            <div class="membre-info">
+                <div class="info-row">
+                    <span class="info-label">📚 Filière</span>
+                    <span class="info-value" th:text="${membre.filiere}">Informatique</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📱 Téléphone</span>
+                    <span class="info-value" th:text="${membre.telephone}">0600000000</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Inscription</span>
+                    <span class="info-value" th:text="${#temporals.format(membre.dateInscription, 'dd/MM/yyyy')}">01/01/2024</span>
+                </div>
+            </div>
+
+            <div class="membre-actions">
+                <a th:href="@{/membres/edit/{id}(id=${membre.id})}" class="btn btn-sm btn-warning">✏️ modifier</a>
+                <a th:href="@{/membres/delete/{id}(id=${membre.id})}"
+                   class="btn btn-sm btn-danger"
+                   onclick="return confirm('Supprimer ce membre?')">🗑️supprimmer</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

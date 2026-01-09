@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Événements</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 24px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #334155;
+            color: white;
+        }
+
+        /* MAIN */
+        .main-content {
+            margin-left: 80px;
+            padding: 30px 40px;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 25px 40px;
+            margin: -30px -40px 30px -40px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header-left p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f9fafb;
+            padding: 8px 16px;
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-warning {
+            background: #fbbf24;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* GRID */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        /* CARD */
+        .event-card {
+            background: white;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .event-header {
+            padding: 25px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .event-club {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .event-body {
+            padding: 25px;
+        }
+
+        .event-detail {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .event-detail-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-footer {
+            padding: 20px 25px;
+            background: #f9fafb;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            flex: 1;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">🎓</div>
+    <a href="/clubs" class="nav-item">🏛️</a>
+    <a href="/membres" class="nav-item">👥</a>
+    <a href="/evenements" class="nav-item active">📅</a>
+</div>
+
+<div class="main-content">
+
+    <div class="header">
+        <div class="header-left">
+            <h1>📅 Événements</h1>
+            <p>Gestion et planification des événements</p>
+        </div>
+
+        <div class="header-right">
+            <a th:href="@{/evenements/new}" class="btn btn-primary">➕ Nouvel Événement</a>
+
+            <div class="user-info">
+                <div class="user-avatar"
+                     th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">A</div>
+                <span sec:authentication="name"></span>
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn btn-secondary" type="submit">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${evenements.isEmpty()}" class="empty-state">
+        <h3>Aucun événement</h3>
+        <p>Commencez par créer votre premier événement</p>
+        <a th:href="@{/evenements/new}" class="btn btn-primary">Créer un événement</a>
+    </div>
+
+    <div class="events-grid" th:if="${!evenements.isEmpty()}">
+        <div class="event-card" th:each="evenement : ${evenements}">
+
+            <div class="event-header">
+                <div class="event-title" th:text="${evenement.titre}"></div>
+                <span class="event-club" th:text="${evenement.clubNom}"></span>
+            </div>
+
+            <div class="event-body">
+                <div class="event-detail">
+                    <div class="event-detail-icon">📝</div>
+                    <span th:text="${evenement.description}"></span>
+                </div>
+
+                <div class="event-detail">
+                    <div class="event-detail-icon">📅</div>
+                    <span th:text="${#temporals.format(evenement.dateDebut,'dd/MM/yyyy HH:mm')}"></span>
+                </div>
+
+                <div class="event-detail">
+                    <div class="event-detail-icon">📍</div>
+                    <span th:text="${evenement.lieu}"></span>
+                </div>
+
+                <div class="event-detail">
+                    <div class="event-detail-icon">👥</div>
+                    Capacité : <span th:text="${evenement.capacite}"></span>
+                </div>
+            </div>
+
+            <div class="event-footer">
+                <a th:href="@{/evenements/edit/{id}(id=${evenement.id})}"
+                   class="btn btn-warning btn-sm">✏️ Modifier</a>
+
+                <a th:href="@{/evenements/delete/{id}(id=${evenement.id})}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Supprimer cet événement ?')">🗑️ Supprimer</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
